@@ -1,10 +1,44 @@
 import { useEffect, useState } from "react";
-import logo  from "./assets/img/logo/logo.png";
+import logo from "./assets/img/logo/logo.png";
+import { Link } from "react-router-dom";
 
+// Menu data as array of objects
+const menuItems = [
+  { label: "Home", link: "/" },
+  {
+    label: "Shop",
+    submenu: [
+      { label: "Our Shop", link: "" },
+      { label: "Offers", link: "" },
+      { label: "About us", link: "/about" },
+    ],
+  },
+  {
+    label: "Dogs",
+    submenu: [
+      { label: "Dogs1", link: "" },
+      { label: "Dogs2", link: "" },
+      { label: "Dogs3", link: "" },
+      { label: "Dogs4", link: "" },
+      { label: "Dogs5", link: "" },
+    ],
+  },
+  {
+    label: "Cats",
+    submenu: [
+      { label: "Cats1", link: "" },
+      { label: "Cats2", link: "" },
+      { label: "Cats3", link: "" },
+      { label: "Cats4", link: "" },
+      { label: "Cats5", link: "" },
+    ],
+  },
+  { label: "pet4fun clinic", link: "" },
+  { label: "contacts", link: "" },
+];
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const [openSubmenu, setOpenSubmenu] = useState(null);
 
   useEffect(() => {
@@ -14,17 +48,14 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    // Toggle body class for mobile menu
     if (mobileMenuOpen) {
       document.body.classList.add("mobile-menu-visible");
     } else {
       document.body.classList.remove("mobile-menu-visible");
     }
-    // Clean up on unmount
     return () => document.body.classList.remove("mobile-menu-visible");
   }, [mobileMenuOpen]);
 
-  // Helper to toggle submenu
   const handleSubmenuToggle = (menu) => {
     setOpenSubmenu(openSubmenu === menu ? null : menu);
   };
@@ -55,27 +86,47 @@ const Header = () => {
                 <li className="tg-header__top-social">
                   <ul className="list-wrap">
                     <li>
-                      <a href="https://www.facebook.com/" target="_blank">
+                      <a
+                        href="https://www.facebook.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <i className="fab fa-facebook-f"></i>
                       </a>
                     </li>
                     <li>
-                      <a href="https://twitter.com/" target="_blank">
+                      <a
+                        href="https://twitter.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <i className="fab fa-twitter"></i>
                       </a>
                     </li>
                     <li>
-                      <a href="https://www.whatsapp.com/" target="_blank">
+                      <a
+                        href="https://www.whatsapp.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <i className="fab fa-whatsapp"></i>
                       </a>
                     </li>
                     <li>
-                      <a href="https://www.instagram.com/" target="_blank">
+                      <a
+                        href="https://www.instagram.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <i className="fab fa-instagram"></i>
                       </a>
                     </li>
                     <li>
-                      <a href="https://www.youtube.com/" target="_blank">
+                      <a
+                        href="https://www.youtube.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <i className="fab fa-youtube"></i>
                       </a>
                     </li>
@@ -97,68 +148,27 @@ const Header = () => {
                       <img src={logo} alt="" />
                     </a>
                   </div>
+                  {/* Desktop Menu */}
                   <div className="tgmenu__navbar-wrap tgmenu__navbar-wrap-two tgmenu__main-menu d-none d-xl-flex">
                     <ul className="navigation">
-                      <li>
-                        <a href="">Home</a>
-                      </li>
-                      <li className="menu-item-has-children">
-                        <a href="#">Shop</a>
-                        <ul className="sub-menu">
-                          <li>
-                            <a href="">Our Shop</a>
+                      {menuItems.map((item, idx) =>
+                        item.submenu ? (
+                          <li className="menu-item-has-children" key={idx}>
+                            <Link to={item.link}>{item.label}</Link>
+                            <ul className="sub-menu">
+                              {item.submenu.map((sub, subIdx) => (
+                                <li key={subIdx}>
+                                  <Link to={sub.link}>{sub.label}</Link>
+                                </li>
+                              ))}
+                            </ul>
                           </li>
-                          <li>
-                            <a href="">Offers</a>
+                        ) : (
+                          <li key={idx}>
+                            <Link to={item.link}>{item.label}</Link>
                           </li>
-                        </ul>
-                      </li>
-                      <li className="menu-item-has-children">
-                        <a href="#">Dogs</a>
-                        <ul className="sub-menu">
-                          <li>
-                            <a href="">Dogs1</a>
-                          </li>
-                          <li>
-                            <a href="">Dogs2</a>
-                          </li>
-                          <li>
-                            <a href="">Dogs3</a>
-                          </li>
-                          <li>
-                            <a href="">Dogs4</a>
-                          </li>
-                          <li>
-                            <a href="">Dogs5</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li className="menu-item-has-children">
-                        <a href="#">Cats</a>
-                        <ul className="sub-menu">
-                          <li>
-                            <a href="">Cats1</a>
-                          </li>
-                          <li>
-                            <a href="">Cats2</a>
-                          </li>
-                          <li>
-                            <a href="">Cats3</a>
-                          </li>
-                          <li>
-                            <a href="">Cats4</a>
-                          </li>
-                          <li>
-                            <a href="">Cats5</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <a href="">pet4fun clinic</a>
-                      </li>
-                      <li>
-                        <a href="">contacts</a>
-                      </li>
+                        )
+                      )}
                     </ul>
                   </div>
                   <div className="tgmenu__search">
@@ -235,147 +245,101 @@ const Header = () => {
                       </button>
                     </form>
                   </div>
-
-                  {/* --- ADD THIS: Mobile Navigation --- */}
+                  {/* Mobile Navigation from array */}
                   <ul className="navigation">
-                    <li>
-                      <a href="">Home</a>
-                    </li>
-                    <li
-                      className={`menu-item-has-children${
-                        openSubmenu === "shop" ? " open" : ""
-                      }`}
-                    >
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSubmenuToggle("shop");
-                        }}
-                      >
-                        Shop
-                      </a>
-                      <ul
-                        className="sub-menu"
-                        style={{
-                          display: openSubmenu === "shop" ? "block" : "none",
-                        }}
-                      >
-                        <li>
-                          <a href="">Our Shop</a>
+                    {menuItems.map((item, idx) =>
+                      item.submenu ? (
+                        <li
+                          className={`menu-item-has-children${
+                            openSubmenu === item.label ? " open" : ""
+                          }`}
+                          key={idx}
+                        >
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleSubmenuToggle(item.label);
+                            }}
+                          >
+                            {item.label}
+                          </a>
+                          <ul
+                            className="sub-menu"
+                            style={{
+                              display:
+                                openSubmenu === item.label ? "block" : "none",
+                            }}
+                          >
+                            {item.submenu.map((sub, subIdx) => (
+                              <li key={subIdx}>
+                                <Link
+                                  to={sub.link}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                >
+                                  {sub.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
                         </li>
-                        <li>
-                          <a href="">Offers</a>
+                      ) : (
+                        <li key={idx}>
+                          <Link
+                            to={item.link}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {item.label}
+                          </Link>
                         </li>
-                      </ul>
-                    </li>
-                    <li
-                      className={`menu-item-has-children${
-                        openSubmenu === "dogs" ? " open" : ""
-                      }`}
-                    >
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSubmenuToggle("dogs");
-                        }}
-                      >
-                        Dogs
-                      </a>
-                      <ul
-                        className="sub-menu"
-                        style={{
-                          display: openSubmenu === "dogs" ? "block" : "none",
-                        }}
-                      >
-                        <li>
-                          <a href="">Dogs1</a>
-                        </li>
-                        <li>
-                          <a href="">Dogs2</a>
-                        </li>
-                        <li>
-                          <a href="">Dogs3</a>
-                        </li>
-                        <li>
-                          <a href="">Dogs4</a>
-                        </li>
-                        <li>
-                          <a href="">Dogs5</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li
-                      className={`menu-item-has-children${
-                        openSubmenu === "cats" ? " open" : ""
-                      }`}
-                    >
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleSubmenuToggle("cats");
-                        }}
-                      >
-                        Cats
-                      </a>
-                      <ul
-                        className="sub-menu"
-                        style={{
-                          display: openSubmenu === "cats" ? "block" : "none",
-                        }}
-                      >
-                        <li>
-                          <a href="">Cats1</a>
-                        </li>
-                        <li>
-                          <a href="">Cats2</a>
-                        </li>
-                        <li>
-                          <a href="">Cats3</a>
-                        </li>
-                        <li>
-                          <a href="">Cats4</a>
-                        </li>
-                        <li>
-                          <a href="">Cats5</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li>
-                      <a href="">pet4fun clinic</a>
-                    </li>
-                    <li>
-                      <a href="">contacts</a>
-                    </li>
+                      )
+                    )}
                   </ul>
-
                   <div className="tgmobile__menu-outer"></div>
                   <div className="social-links">
                     <ul className="list-wrap">
                       <li>
-                        <a href="https://www.facebook.com/" target="_blank">
+                        <a
+                          href="https://www.facebook.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-facebook-f"></i>
                         </a>
                       </li>
                       <li>
-                        <a href="https://twitter.com/" target="_blank">
+                        <a
+                          href="https://twitter.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-twitter"></i>
                         </a>
                       </li>
                       <li>
-                        <a href="https://www.whatsapp.com/" target="_blank">
+                        <a
+                          href="https://www.whatsapp.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-whatsapp"></i>
                         </a>
                       </li>
                       <li>
-                        <a href="https://www.instagram.com/" target="_blank">
+                        <a
+                          href="https://www.instagram.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-instagram"></i>
                         </a>
                       </li>
                       <li>
-                        <a href="https://www.youtube.com/" target="_blank">
+                        <a
+                          href="https://www.youtube.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-youtube"></i>
                         </a>
                       </li>
