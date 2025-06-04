@@ -1,12 +1,12 @@
 import AboutArea from "./areas/AboutArea";
-import Breadcrumb from "./areas/Breadcrumb";
+import AboutHeader from "./areas/AboutHeader";
 import CounterArea from "./areas/CounterArea";
 import FaqArea from "./areas/FaqArea";
 
 const About = () => {
   return (
     <main className="fix">
-      <Breadcrumb />
+      <AboutHeader />
       <AboutArea />
       <CounterArea />
       <FaqArea />

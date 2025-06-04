@@ -8,9 +8,10 @@ const menuItems = [
   {
     label: "Shop",
     submenu: [
-      { label: "Our Shop", link: "" },
+      { label: "Our Shop", link: "/shop" },
       { label: "Offers", link: "" },
       { label: "About us", link: "/about" },
+      { label: "Blogs", link: "/blogs" },
     ],
   },
   {
@@ -33,8 +34,8 @@ const menuItems = [
       { label: "Cats5", link: "" },
     ],
   },
-  { label: "pet4fun clinic", link: "" },
-  { label: "contacts", link: "" },
+  { label: "Clinic", link: "" },
+  { label: "contacts", link: "/contact" },
 ];
 
 const Header = () => {

@@ -1,0 +1,16 @@
+/* In your App.css or global stylesheet */
+.blog-cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+.blog-cards-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.products-cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+.products-cards-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
