@@ -6,9 +6,12 @@ import Contact from "./components/Contact/Contact";
 import Products from "./components/Product/Products";
 import ProductDetails from "./components/Product/areas/ProductDetails";
 import Blogs from "./components/Blog/Blogs";
-import "./App.css"; // Assuming you have some global styles
+import "./App.css";
 import BlogDetails from "./components/Blog/areas/BlogDetails";
 import Header from "./Header";
+import Cart from "./components/Cart/Cart";
+import Register from "./components/Auth/Register";
+import Login from "./components/Auth/Login";
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
           <Route path="/productDetails" element={<ProductDetails />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogDetails" element={<BlogDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </main>
       <Footer />

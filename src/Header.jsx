@@ -210,10 +210,10 @@ const Header = () => {
                         </a>
                       </li>
                       <li className="header-cart header-cart-two">
-                        <a href="javascript:void(0)">
+                        <Link to="/cart">
                           <i className="flaticon-shopping-bag"></i>
                           <span>0</span>
-                        </a>
+                        </Link>
                       </li>
                     </ul>
                   </div>
