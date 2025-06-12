@@ -176,10 +176,10 @@ const CartArea = () => {
                         </h5>
                       </div>
 
-                      <button type="button" className="checkout-btn w-100">
+                      <Link to="/checkout" type="button" className="checkout-btn w-100">
                         <i className="fas fa-credit-card me-2"></i>
                         Proceed to Checkout
-                      </button>
+                      </Link>
                     </div>
                   </div>
                   {/* End Summary */}

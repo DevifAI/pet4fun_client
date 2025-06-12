@@ -1,16 +1,90 @@
+import React, { useEffect, useState } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllCategories } from "../../../redux/slice/categorySlice";
 
-const ProductFilters = () => {
-  const [price, setPrice] = useState([0, 1000]);
+const PET_TYPES = ["dog", "cat", "rabbit", "bird", "fish", "other"];
+const BREEDS = [
+  "Airedale Terrier",
+  "American Eskimo",
+  "Basset Hound",
+  "Bernese Mountain Dog",
+  "Bichon Frise",
+];
+const GENDERS = ["male", "female"];
+const LOCATIONS = ["NewYork City", "Kansas City", "NewJersey"];
+
+const ProductFilters = ({ filters, setFilters }) => {
+  const dispatch = useDispatch();
+  const { categories, loading: catLoading } = useSelector(
+    (state) => state.categories
+  );
+
+  // Local state for filter selections
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch]);
+
+  // Sync localFilters with filters if filters change from outside (e.g. reset)
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+
+  // Helper for checkbox arrays
+  const handleCheckbox = (key, value) => {
+    setLocalFilters((prev) => {
+      const arr = prev[key];
+      return {
+        ...prev,
+        [key]: arr.includes(value)
+          ? arr.filter((v) => v !== value)
+          : [...arr, value],
+      };
+    });
+  };
+
+  // Helper to get children for a parent
+  const getChildren = (parentId) =>
+    categories.filter((cat) => String(cat.parentCategory) === String(parentId));
+
+  // Handle slider
+  const handleSlider = ([min, max]) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      minPrice: min,
+      maxPrice: max,
+    }));
+  };
+
+  // Handle search input
+  const handleSearch = (e) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      search: e.target.value,
+    }));
+  };
+
+  // Apply button handler
+  const handleApply = (e) => {
+    e.preventDefault();
+    setFilters({ ...localFilters, page: 1 });
+  };
+
   return (
     <aside className="animal__sidebar">
       <div className="animal__widget">
-        <h4 className="animal__widget-title">Filters</h4>
+        <h4 className="animal__widget-title">Search</h4>
         <div className="sidebar-search-form">
-          <form action="#">
-            <input type="text" placeholder="Type Keywords. . ." />
+          <form onSubmit={handleApply}>
+            <input
+              type="text"
+              placeholder="Type Keywords. . ."
+              value={localFilters.search}
+              onChange={handleSearch}
+            />
             <button type="submit">
               <i className="flaticon-loupe"></i>
             </button>
@@ -25,251 +99,180 @@ const ProductFilters = () => {
             min={0}
             max={5000}
             step={10}
-            value={price}
-            onChange={setPrice}
+            value={[localFilters.minPrice, localFilters.maxPrice]}
+            onChange={handleSlider}
             allowCross={false}
           />
           <div style={{ marginTop: "12px", fontWeight: "bold" }}>
-            Selected: ${price[0]} - ${price[1]}
+            Selected: ${localFilters.minPrice} - ${localFilters.maxPrice}
           </div>
         </div>
       </div>
       <div className="animal__widget">
-        <h4 className="animal__widget-title">Pet Categories</h4>
+        <h4 className="animal__widget-title">Categories</h4>
         <div className="courses-cat-list">
           <ul className="list-wrap">
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="cat_1"
-                />
-                <label className="form-check-label" htmlFor="cat_1">
-                  Dogs <span>(344)</span>
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="cat_2"
-                />
-                <label className="form-check-label" htmlFor="cat_2">
-                  Cats <span>(12)</span>
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="cat_3"
-                />
-                <label className="form-check-label" htmlFor="cat_3">
-                  Rabbit <span>(56)</span>
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="cat_4"
-                />
-                <label className="form-check-label" htmlFor="cat_4">
-                  Birds <span>(14)</span>
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="cat_5"
-                />
-                <label className="form-check-label" htmlFor="cat_5">
-                  Fish <span>(11)</span>
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="cat_6"
-                />
-                <label className="form-check-label" htmlFor="cat_6">
-                  Others <span>(14)</span>
-                </label>
-              </div>
-            </li>
+            {catLoading && <li>Loading...</li>}
+            {!catLoading &&
+              categories
+                .filter((cat) => !cat.parentCategory)
+                .map((parent) => (
+                  <li key={parent._id}>
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id={`parent_cat_${parent._id}`}
+                        checked={localFilters.categories.includes(parent._id)}
+                        onChange={() => handleCheckbox("categories", parent._id)}
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor={`parent_cat_${parent._id}`}
+                      >
+                        {parent.name}
+                      </label>
+                    </div>
+                    {/* Show children if parent is checked */}
+                    {localFilters.categories.includes(parent._id) &&
+                      getChildren(parent._id).length > 0 && (
+                        <ul className="list-wrap" style={{ marginLeft: 20 }}>
+                          {getChildren(parent._id).map((child) => (
+                            <li key={child._id}>
+                              <div className="form-check">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={`child_cat_${child._id}`}
+                                  checked={localFilters.categories.includes(child._id)}
+                                  onChange={() => handleCheckbox("categories", child._id)}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor={`child_cat_${child._id}`}
+                                >
+                                  {child.name}
+                                </label>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                  </li>
+                ))}
           </ul>
         </div>
       </div>
+      {/* Pet Types */}
+      <div className="animal__widget">
+        <h4 className="animal__widget-title">Pet Types</h4>
+        <div className="courses-cat-list">
+          <ul className="list-wrap">
+            {PET_TYPES.map((type) => (
+              <li key={type}>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`petType_${type}`}
+                    checked={localFilters.petType.includes(type)}
+                    onChange={() => handleCheckbox("petType", type)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`petType_${type}`}
+                  >
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      {/* Breeds */}
       <div className="animal__widget">
         <h4 className="animal__widget-title">Breeds</h4>
         <div className="courses-cat-list">
           <ul className="list-wrap">
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="bre_1"
-                />
-                <label className="form-check-label" htmlFor="bre_1">
-                  Airedale Terrier
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="bre_2"
-                />
-                <label className="form-check-label" htmlFor="bre_2">
-                  American Eskimo
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="bre_3"
-                />
-                <label className="form-check-label" htmlFor="bre_3">
-                  Basset Hound
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="bre_4"
-                />
-                <label className="form-check-label" htmlFor="bre_4">
-                  Bernese Mountain Dog
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="bre_5"
-                />
-                <label className="form-check-label" htmlFor="bre_5">
-                  Bichon Frise
-                </label>
-              </div>
-            </li>
+            {BREEDS.map((breed) => (
+              <li key={breed}>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`breed_${breed}`}
+                    checked={localFilters.breed.includes(breed)}
+                    onChange={() => handleCheckbox("breed", breed)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`breed_${breed}`}
+                  >
+                    {breed}
+                  </label>
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
+      {/* Gender */}
       <div className="animal__widget">
         <h4 className="animal__widget-title">Gender</h4>
         <div className="courses-cat-list">
           <ul className="list-wrap">
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="gender_1"
-                />
-                <label className="form-check-label" htmlFor="gender_1">
-                  Male (344)
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="gender_2"
-                />
-                <label className="form-check-label" htmlFor="gender_2">
-                  Female (21)
-                </label>
-              </div>
-            </li>
+            {GENDERS.map((gender) => (
+              <li key={gender}>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`gender_${gender}`}
+                    checked={localFilters.gender.includes(gender)}
+                    onChange={() => handleCheckbox("gender", gender)}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`gender_${gender}`}
+                  >
+                    {gender.charAt(0).toUpperCase() + gender.slice(1)}
+                  </label>
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
+      {/* Location */}
       <div className="animal__widget">
         <h4 className="animal__widget-title">Location</h4>
         <div className="courses-cat-list">
           <ul className="list-wrap">
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="loc_1"
-                />
-                <label className="form-check-label" htmlFor="loc_1">
-                  All
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="loc_2"
-                />
-                <label className="form-check-label" htmlFor="loc_2">
-                  NewYork City
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="loc_3"
-                />
-                <label className="form-check-label" htmlFor="loc_3">
-                  Kansas City
-                </label>
-              </div>
-            </li>
-            <li>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="loc_4"
-                />
-                <label className="form-check-label" htmlFor="loc_4">
-                  NewJersey
-                </label>
-              </div>
-            </li>
+            {LOCATIONS.map((loc) => (
+              <li key={loc}>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={`loc_${loc}`}
+                    checked={localFilters.location.includes(loc)}
+                    onChange={() => handleCheckbox("location", loc)}
+                  />
+                  <label className="form-check-label" htmlFor={`loc_${loc}`}>
+                    {loc}
+                  </label>
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
-        <div className="apply-btn">
-          <a href="#" className="btn">
-            Apply Now
-          </a>
-        </div>
+      </div>
+      {/* Apply Button */}
+      <div style={{ textAlign: "center", margin: "16px 0" }}>
+        <button className="btn btn-primary" onClick={handleApply}>
+          Apply
+        </button>
       </div>
     </aside>
   );

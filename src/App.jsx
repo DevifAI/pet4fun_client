@@ -12,6 +12,10 @@ import Header from "./Header";
 import Cart from "./components/Cart/Cart";
 import Register from "./components/Auth/Register";
 import Login from "./components/Auth/Login";
+import Account from "./components/Account/Account";
+import Order from "./components/Order/Order";
+import Wishlist from "./components/Wishlist/Wishlist";
+import CheckOut from "./components/CheckOut/CheckOut";
 
 function App() {
   return (
@@ -27,6 +31,10 @@ function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogDetails" element={<BlogDetails />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/orders" element={<Order />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/checkout" element={<CheckOut />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
         </Routes>

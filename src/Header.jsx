@@ -200,14 +200,14 @@ const Header = () => {
                   <div className="tgmenu__action tgmenu__action-three d-md-block">
                     <ul className="list-wrap">
                       <li className="header-login">
-                        <a href="">
+                        <Link to="/account">
                           <i className="flaticon-user"></i>
-                        </a>
+                        </Link>
                       </li>
                       <li className="header-wishlist">
-                        <a href="javascript:void(0)">
+                        <Link to="/wishlist">
                           <i className="flaticon-love"></i>
-                        </a>
+                        </Link>
                       </li>
                       <li className="header-cart header-cart-two">
                         <Link to="/cart">
