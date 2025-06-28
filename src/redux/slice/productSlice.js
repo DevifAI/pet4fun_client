@@ -1,90 +1,62 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchProductById, fetchProducts } from "../../apis/products/productsApi";
+// productFilterSlice.js
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { fetchFilteredProducts } from "../../apis/products/productsApi";
 
-
-// Async thunk for fetching all products
-export const getAllProducts = createAsyncThunk(
-  "products/getAllProducts",
+export const getFilteredProducts = createAsyncThunk(
+  "products/filter",
   async (params, { rejectWithValue }) => {
     try {
-      const data = await fetchProducts(params);
-      return data;
+      const response = await fetchFilteredProducts(params);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error);
-    }
-  }
-);
-
-// Async thunk for fetching a single product by ID
-export const getProductById = createAsyncThunk(
-  "products/getProductById",
-  async (productId, { rejectWithValue }) => {
-    try {
-      const data = await fetchProductById(productId);
-      return data;
-    } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
 const initialState = {
   products: [],
+  filters: {
+    brands: [],
+    species: [],
+    types: [],
+    usages: [],
+    price: { min: 0, max: 0 },
+  },
   total: 0,
   page: 1,
   pages: 1,
   loading: false,
   error: null,
-  productDetails: null,
-  productDetailsLoading: false,
-  productDetailsError: null,
 };
 
-const productsSlice = createSlice({
-  name: "products",
+const productFilterSlice = createSlice({
+  name: "productFilter",
   initialState,
   reducers: {
-    clearProductDetails: (state) => {
-      state.productDetails = null;
-      state.productDetailsError = null;
-      state.productDetailsLoading = false;
-    },
+    resetFilterState: () => initialState,
   },
   extraReducers: (builder) => {
-    // Get all products
     builder
-      .addCase(getAllProducts.pending, (state) => {
+      .addCase(getFilteredProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllProducts.fulfilled, (state, action) => {
+      .addCase(getFilteredProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload.products || [];
-        state.total = action.payload.total || 0;
-        state.page = action.payload.page || 1;
-        state.pages = action.payload.pages || 1;
+        state.products = action.payload.products;
+        state.filters = action.payload.filters;
+        state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.pages = action.payload.pages;
       })
-      .addCase(getAllProducts.rejected, (state, action) => {
+      .addCase(getFilteredProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Failed to fetch products";
-      });
-
-    // Get product by ID
-    builder
-      .addCase(getProductById.pending, (state) => {
-        state.productDetailsLoading = true;
-        state.productDetailsError = null;
-      })
-      .addCase(getProductById.fulfilled, (state, action) => {
-        state.productDetailsLoading = false;
-        state.productDetails = action.payload.data || action.payload;
-      })
-      .addCase(getProductById.rejected, (state, action) => {
-        state.productDetailsLoading = false;
-        state.productDetailsError = action.payload || "Failed to fetch product";
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearProductDetails } = productsSlice.actions;
-export default productsSlice.reducer;
+export const { resetFilterState } = productFilterSlice.actions;
+export default productFilterSlice.reducer;

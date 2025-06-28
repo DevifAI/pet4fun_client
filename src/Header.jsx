@@ -175,23 +175,7 @@ const Header = () => {
                   <div className="tgmenu__search">
                     <form action="#" className="tgmenu__search-form">
                       <input type="text" placeholder="Search Here . . ." />
-                      <div className="select-grp">
-                        <select
-                          className="form-select"
-                          id="course-cat"
-                          aria-label="Default select example"
-                          style={{ width: "130px" }}
-                          defaultValue=""
-                        >
-                          <option value="" disabled>
-                            All Categories
-                          </option>
-                          <option value="1">Dogs</option>
-                          <option value="2">Cats</option>
-                          <option value="3">Bull Dog</option>
-                          <option value="4">Others</option>
-                        </select>
-                      </div>
+                      
                       <button type="submit">
                         <i className="flaticon-loupe"></i>
                       </button>

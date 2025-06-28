@@ -1,27 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getProductById,
+  getRelatedProducts,
+} from "../../../redux/slice/productDetailsSlice";
 import Breadcrumb from "../../Breadcrumb";
-import check_icon02 from "../../../assets/img/icon/check_icon02.svg";
-import pet_details01 from "../../../assets/img/shop/pet_details01.jpg";
-import pet_details02 from "../../../assets/img/shop/pet_details02.jpg";
-import pet_details03 from "../../../assets/img/shop/pet_details03.jpg";
-import pet_details04 from "../../../assets/img/shop/pet_details04.jpg";
 import RelatedProducts from "./RelatedProducts";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-
-const petImages = [pet_details01, pet_details02, pet_details03, pet_details04];
+import check_icon02 from "../../../assets/img/icon/check_icon02.svg";
 
 const ProductDetails = () => {
+  const { productId } = useParams();
+  const dispatch = useDispatch();
+  const { product, relatedProducts, loading, error } = useSelector(
+    (state) => state.productDetails
+  );
+
+  useEffect(() => {
+    if (productId) {
+      dispatch(getProductById(productId));
+      dispatch(getRelatedProducts(productId));
+    }
+  }, [productId, dispatch]);
+
+  if (loading)
+    return <div className="loading-spinner">Loading product details...</div>;
+  if (error) return <div className="error-message">Error: {error.message}</div>;
+  if (!product) return <div className="not-found">Product not found</div>;
+
   return (
     <div>
       <header>
         <Breadcrumb
-          title="Pet Details"
+          title={product.name}
           breadcrumbItems={[
             { label: "Home", link: "/" },
-            { label: "Pet Details" },
+            {
+              label: product.category_id?.name || "Products",
+              link: product.category_id?.slug
+                ? `/shop?categorySlug=${product.category_id.slug}`
+                : "/shop",
+            },
+            { label: product.name },
           ]}
         />
       </header>
@@ -38,11 +62,11 @@ const ProductDetails = () => {
                     loop
                     style={{ width: "100%", marginBottom: 10 }}
                   >
-                    {petImages.map((img, idx) => (
+                    {product.images.map((img, idx) => (
                       <SwiperSlide key={idx}>
                         <img
                           src={img}
-                          alt={`pet${idx}`}
+                          alt={`${product.name}-${idx}`}
                           style={{ width: "100%" }}
                         />
                       </SwiperSlide>
@@ -52,11 +76,11 @@ const ProductDetails = () => {
                     className="thumbs"
                     style={{ display: "flex", gap: 10, marginTop: 10 }}
                   >
-                    {petImages.map((img, idx) => (
+                    {product.images.map((img, idx) => (
                       <img
                         key={idx}
                         src={img}
-                        alt={`thumb${idx}`}
+                        alt={`thumb-${product.name}-${idx}`}
                         style={{ width: 60, cursor: "pointer" }}
                       />
                     ))}
@@ -64,43 +88,37 @@ const ProductDetails = () => {
                 </div>
                 <div className="animal__details-description">
                   <h4 className="title">Description</h4>
-                  <p>
-                    When an unknown printer took a galley of type and scrambled
-                    ew year make a type speci awmen bookbsites and e-commerce
-                    shops. We know how hard.when an unknown printer took a
-                    galley of type and scrambled it to make a type specimen
-                    book. It has survived not centurieswhen an unknown printer
-                    took a galley of type and scrambled.
-                  </p>
+                  <p>{product.description || "No description available"}</p>
                 </div>
                 <div className="animal__details-info-wrap">
                   <h4 className="title">More Additional Information</h4>
                   <p>
-                    When an unknown printer took a galley of type and scrambled
-                    ew year make a type speci awmen bookbsites and e-commerce
-                    shops. We know how hard.
+                    {product.additionalInfo ||
+                      "Additional information not available for this product."}
                   </p>
                   <div className="introducing__list-box">
                     <ul className="list-wrap">
                       {[
-                        "Vaccine Completed",
+                        product.isVaccinated && "Vaccine Completed",
                         "24/7 emergency assistance",
-                        "6 Month Health Insurance",
+                        product.healthInsurance && "6 Month Health Insurance",
                         "Health Record Profile",
                         "100% Coverage",
                         "NYC sales tax",
-                      ].map((item, idx) => (
-                        <li key={idx}>
-                          <span className="icon">
-                            <img
-                              src={check_icon02}
-                              alt=""
-                              className="injectable"
-                            />
-                          </span>
-                          {item}
-                        </li>
-                      ))}
+                      ]
+                        .filter(Boolean)
+                        .map((item, idx) => (
+                          <li key={idx}>
+                            <span className="icon">
+                              <img
+                                src={check_icon02}
+                                alt=""
+                                className="injectable"
+                              />
+                            </span>
+                            {item}
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 </div>
@@ -109,123 +127,160 @@ const ProductDetails = () => {
                 <aside className="animal__details-sidebar">
                   <div className="animal__details-widget">
                     <div className="animal__details-sidebar-info">
-                      <h4 className="title">The Adult Brown Tabby Cat</h4>
+                      <h4 className="title">{product.name}</h4>
                       <p>
-                        when an unknown printer took a galley offer type
-                        anaweard scramyear make a type specimen.
+                        {product.shortDescription ||
+                          "Detailed information about this product."}
                       </p>
-                      <h4 className="price">$257.00</h4>
+                      <h4 className="price">
+                        {product.discountPrice ? (
+                          <>
+                            <span
+                              style={{
+                                textDecoration: "line-through",
+                                marginRight: "10px",
+                              }}
+                            >
+                              ${product.price}
+                            </span>
+                            ${product.discountPrice}
+                          </>
+                        ) : (
+                          `$${product.price}`
+                        )}
+                      </h4>
                       <ul className="list-wrap">
-                        <li>
-                          <span>Available Date:</span>09, Sep 2023
-                        </li>
-                        <li>
-                          <span>Breed:</span>Shih Tzu
-                        </li>
-                        <li>
-                          <span>Color:</span>Brown/white
-                        </li>
-                        <li>
-                          <span>Gender:</span>Male
-                        </li>
-                        <li>
-                          <span>Weight:</span>9-12lbs
-                        </li>
-                        <li>
-                          <span>Puppy ID:</span>6191-EP
-                        </li>
-                        <li>
-                          <span>Date of Birth:</span>09, Jul 2023
-                        </li>
+                        {product.availableFrom && (
+                          <li>
+                            <span>Available Date:</span>
+                            {new Date(
+                              product.availableFrom
+                            ).toLocaleDateString()}
+                          </li>
+                        )}
+                        {product.breed && (
+                          <li>
+                            <span>Breed:</span>
+                            {typeof product.breed === "object"
+                              ? product.breed.name
+                              : product.breed}
+                          </li>
+                        )}
+                        {product.color && (
+                          <li>
+                            <span>Color:</span>
+                            {product.color}
+                          </li>
+                        )}
+                        {product.gender && (
+                          <li>
+                            <span>Gender:</span>
+                            {product.gender}
+                          </li>
+                        )}
+                        {product.weight && (
+                          <li>
+                            <span>Weight:</span>
+                            {product.weight}
+                          </li>
+                        )}
+                        {product._id && (
+                          <li>
+                            <span>Product ID:</span>
+                            {product._id
+                              .toString()
+                              .substring(0, 8)
+                              .toUpperCase()}
+                          </li>
+                        )}
+                        {product.dob && (
+                          <li>
+                            <span>Date of Birth:</span>
+                            {new Date(product.dob).toLocaleDateString()}
+                          </li>
+                        )}
                       </ul>
                     </div>
                   </div>
                   <div className="animal__details-widget">
-                    <h4 className="widget-title">Payment Type</h4>
-                    <div className="payment__type-wrap">
-                      <form action="#" className="payment__form">
-                        <div className="select-grp">
-                          <select name="pet_type" className="orderby">
-                            <option value="Select">Select</option>
-                            <option value="Select One">Select One</option>
-                            <option value="Select Two">Select Two</option>
-                            <option value="Select Three">Select Three</option>
-                          </select>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        marginTop: "10px",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="bring-me-home-btn"
+                        style={{
+                          padding: "12px 25px",
+                          backgroundColor: "#ff6b00",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          width: "100%",
+                          textAlign: "center",
+                          opacity: product.stock <= 0 ? 0.6 : 1,
+                          pointerEvents: product.stock <= 0 ? "none" : "auto",
+                        }}
+                      >
+                        {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                      </button>
+                      <button
+                        type="button"
+                        className="bring-me-home-btn"
+                        style={{
+                          padding: "12px 25px",
+                          backgroundColor: "#333",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          width: "100%",
+                          textAlign: "center",
+                          opacity: product.stock <= 0 ? 0.6 : 1,
+                          pointerEvents: product.stock <= 0 ? "none" : "auto",
+                        }}
+                      >
+                        Buy Now
+                      </button>
+                    </div>
+                  </div>
+                  {product.location && (
+                    <div className="animal__details-widget">
+                      <div className="animal__details-map">
+                        <h4 className="widget-title">Map Location</h4>
+                        <div className="location-map">
+                          <iframe
+                            src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(
+                              product.location
+                            )}`}
+                            style={{ border: 0, width: "100%", height: 200 }}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="map"
+                          ></iframe>
                         </div>
-                        <button type="submit">Bring Me Home</button>
-                      </form>
-                      <div className="social-wrap">
-                        <h6 className="title">Share This Post:</h6>
-                        <ul className="list-wrap">
-                          <li>
-                            <a
-                              href="https://www.facebook.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-facebook-f"></i>
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              href="https://twitter.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-twitter"></i>
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              href="https://www.whatsapp.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-whatsapp"></i>
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              href="https://www.instagram.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-instagram"></i>
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              href="https://www.youtube.com/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <i className="fab fa-youtube"></i>
-                            </a>
-                          </li>
-                        </ul>
                       </div>
                     </div>
-                  </div>
-                  <div className="animal__details-widget">
-                    <div className="animal__details-map">
-                      <h4 className="widget-title">Map Location</h4>
-                      <div className="location-map">
-                        <iframe
-                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48409.69813174607!2d-74.05163325136718!3d40.68264649999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25bae694479a3%3A0xb9949385da52e69e!2sBarclays%20Center!5e0!3m2!1sen!2sbd!4v1684309529719!5m2!1sen!2sbd"
-                          style={{ border: 0, width: "100%", height: 200 }}
-                          allowFullScreen
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          title="map"
-                        ></iframe>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </aside>
               </div>
             </div>
           </div>
-          <RelatedProducts />
+          {relatedProducts.length > 0 && (
+            <div className="related-products-section">
+              <h3 className="section-title">You May Also Like</h3>
+              <RelatedProducts products={relatedProducts} />
+            </div>
+          )}
         </div>
       </section>
     </div>

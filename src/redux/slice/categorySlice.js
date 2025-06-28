@@ -1,43 +1,13 @@
+import { fetchCategoryTree } from "../../apis/products/categoryAPi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import {
-  fetchCategories,
-  fetchParentCategories,
-  fetchChildrenByParentId,
-} from "./../../apis/products/categoryAPi";
 
-// Get all categories
-export const getAllCategories = createAsyncThunk(
-  "categories/getAllCategories",
+// Get category tree
+export const getCategoryTree = createAsyncThunk(
+  "categories/getCategoryTree",
   async (_, { rejectWithValue }) => {
     try {
-      const data = await fetchCategories();
-      return data.data;
-    } catch (error) {
-      return rejectWithValue(error);
-    }
-  }
-);
-
-// Get only parent categories
-export const getParentCategories = createAsyncThunk(
-  "categories/getParentCategories",
-  async (_, { rejectWithValue }) => {
-    try {
-      const data = await fetchParentCategories();
-      return data.data;
-    } catch (error) {
-      return rejectWithValue(error);
-    }
-  }
-);
-
-// Get children by parent category ID
-export const getChildrenByParentId = createAsyncThunk(
-  "categories/getChildrenByParentId",
-  async (parentId, { rejectWithValue }) => {
-    try {
-      const data = await fetchChildrenByParentId(parentId);
-      return data.data;
+      const response = await fetchCategoryTree();
+      return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -47,66 +17,58 @@ export const getChildrenByParentId = createAsyncThunk(
 const categoriesSlice = createSlice({
   name: "categories",
   initialState: {
-    categories: [],
-    parentCategories: [],
-    childCategories: [],
+    tree: [],
     loading: false,
     error: null,
-    selectedParent: null,
+    selectedCategories: {
+      parent: null,
+      subCategory: null,
+      childSubCategory: null,
+    },
   },
   reducers: {
     setSelectedParent(state, action) {
-      state.selectedParent = action.payload;
-      state.childCategories = [];
+      state.selectedCategories.parent = action.payload;
+      state.selectedCategories.subCategory = null;
+      state.selectedCategories.childSubCategory = null;
     },
-    clearChildCategories(state) {
-      state.childCategories = [];
+    setSelectedSubCategory(state, action) {
+      state.selectedCategories.subCategory = action.payload;
+      state.selectedCategories.childSubCategory = null;
+    },
+    setSelectedChildSubCategory(state, action) {
+      state.selectedCategories.childSubCategory = action.payload;
+    },
+    clearSelectedCategories(state) {
+      state.selectedCategories = {
+        parent: null,
+        subCategory: null,
+        childSubCategory: null,
+      };
     },
   },
   extraReducers: (builder) => {
     builder
-      // All categories
-      .addCase(getAllCategories.pending, (state) => {
+      .addCase(getCategoryTree.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllCategories.fulfilled, (state, action) => {
+      .addCase(getCategoryTree.fulfilled, (state, action) => {
         state.loading = false;
-        state.categories = action.payload || [];
+        state.tree = action.payload || [];
       })
-      .addCase(getAllCategories.rejected, (state, action) => {
+      .addCase(getCategoryTree.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Failed to fetch categories";
-      })
-      // Parent categories
-      .addCase(getParentCategories.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getParentCategories.fulfilled, (state, action) => {
-        state.loading = false;
-        state.parentCategories = action.payload || [];
-      })
-      .addCase(getParentCategories.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to fetch parent categories";
-      })
-      // Child categories
-      .addCase(getChildrenByParentId.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getChildrenByParentId.fulfilled, (state, action) => {
-        state.loading = false;
-        state.childCategories = action.payload || [];
-      })
-      .addCase(getChildrenByParentId.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to fetch child categories";
+        state.error = action.payload || "Failed to fetch category tree";
       });
   },
 });
 
-export const { setSelectedParent, clearChildCategories } =
-  categoriesSlice.actions;
+export const {
+  setSelectedParent,
+  setSelectedSubCategory,
+  setSelectedChildSubCategory,
+  clearSelectedCategories,
+} = categoriesSlice.actions;
+
 export default categoriesSlice.reducer;

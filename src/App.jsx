@@ -16,18 +16,22 @@ import Account from "./components/Account/Account";
 import Order from "./components/Order/Order";
 import Wishlist from "./components/Wishlist/Wishlist";
 import CheckOut from "./components/CheckOut/CheckOut";
+import Desktop from "./components/Megamenu/Desktop";
+import MainMenu from "./components/Megamenu/MainMenu";
 
 function App() {
   return (
     <Router>
-      <Header />
+      {/* <Desktop /> */}
+      {/* <Header /> */}
+      <MainMenu />
       <main className="fix">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/shop" element={<Products />} />
-          <Route path="/productDetails" element={<ProductDetails />} />
+          <Route path="/productDetails/:productId" element={<ProductDetails />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogDetails" element={<BlogDetails />} />
           <Route path="/cart" element={<Cart />} />

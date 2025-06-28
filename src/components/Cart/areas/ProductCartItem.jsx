@@ -44,7 +44,7 @@ const ProductCartItem = ({ product, onIncrease, onDecrease, onRemove }) => {
           </h6>
         </div>
         <div className="col-md-1 col-lg-1 col-xl-1 text-end">
-          <button className="remove-btn" onClick={onRemove}>
+          <button className="remove-btn2" onClick={onRemove}>
             <i className="fas fa-times"></i>
           </button>
         </div>
